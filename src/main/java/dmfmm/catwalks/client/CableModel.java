@@ -53,9 +53,6 @@ public class CableModel implements IBakedModel {
 
              CableBlock.CableState state_the_cramp = ext.getValue(CableBlock.STATE);
              if (ext.getValue(CableBlock.CONNECTED)) {
-                 // BUG FIX #10: IBakedModel.getQuads() can return an immutable list (e.g. ImmutableList
-                 // from Guava-backed baked models). Calling addAll() on it throws UnsupportedOperationException.
-                 // Always copy into a new mutable ArrayList before mutating.
                  List<BakedQuad> q = new java.util.ArrayList<>(this.cable_rotated.getOrDefault(ext.getValue(CableBlock.FACING), this.cable_none).getQuads(state, side, rand));
                  q.addAll(this.cable_bottom.getQuads(state, side, rand));
                  return q;

@@ -127,10 +127,6 @@ public class RedOverlayEvent {
         GlStateManager.pushMatrix();
         GlStateManager.translate(-doubleX, -doubleY, -doubleZ);
 
-
-        // BUG FIX #16: colorMask(false, true, true, true) writes GREEN and BLUE but suppresses RED.
-        // This produced a cyan tint on missing faces, not the intended red overlay.
-        // Correct mask writes only to the RED channel, creating the actual red highlight.
         GlStateManager.colorMask(true, false, false, true);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
