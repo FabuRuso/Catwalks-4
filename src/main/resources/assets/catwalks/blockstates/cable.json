@@ -5,6 +5,11 @@
   },
   "variants": {
     "normal": [{}],
-    "inventory": [{}]
+    "inventory": [{}],
+    "preferred_facing=east":  [{}],
+    "preferred_facing=west":  [{}],
+    "preferred_facing=north": [{}],
+    "preferred_facing=south": [{}],
+    "preferred_facing=none":  [{}]
   }
 }

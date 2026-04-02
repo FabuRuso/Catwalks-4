@@ -1,6 +1,7 @@
 package dmfmm.catwalks.client.catwalks;
 
 import com.google.common.collect.ImmutableList;
+import dmfmm.catwalks.Catwalks;
 import dmfmm.catwalks.block.CatwalkBlock;
 import dmfmm.catwalks.utils.CatwalkConfigs;
 import net.minecraft.block.state.IBlockState;
@@ -11,17 +12,27 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
+@Mod.EventBusSubscriber(modid = Catwalks.MODID, value = Side.CLIENT)
 public class CatwalkModel implements IBakedModel{
 
     IBakedModel item, rails, floor;
     //static Map<CatwalkState, List<BakedQuad>> cache = new HashMap<>();
     static Map<String, Map<CatwalkState, List<BakedQuad>>> cache2 = new HashMap<>();
+
+    @SubscribeEvent
+    public static void onModelBake(ModelBakeEvent event) {
+        cache2.clear();
+    }
 
     public CatwalkModel(IBakedModel item, IBakedModel rails, IBakedModel floor) {
         this.item = item;
@@ -43,18 +54,16 @@ public class CatwalkModel implements IBakedModel{
             cw = new CatwalkState(RailSection.OUTER, RailSection.OUTER, RailSection.OUTER, RailSection.OUTER,
                                   FloorSection.OUTER, FloorSection.OUTER, FloorSection.OUTER, FloorSection.OUTER, 0);
         }
+        if (!cache2.containsKey(material)) {
+            cache2.put(material, new HashMap<>());
+        }
+        Map<CatwalkState, List<BakedQuad>> materialCache = cache2.get(material);
 
-        if(cache2.containsKey(material) && !CatwalkConfigs.supportOptifine){
-            Map<CatwalkState, List<BakedQuad>> map = cache2.get(material);
-            if(map.containsKey(cw)){
-                List<BakedQuad> quads = map.get(cw);
-                if(!quads.isEmpty()) {
-                    return map.get(cw);
-                }
+        if (!CatwalkConfigs.supportOptifine) {
+            if (materialCache.containsKey(cw)) {
+                List<BakedQuad> cached = materialCache.get(cw);
+                if (!cached.isEmpty()) return cached;
             }
-        } else {
-            Map<CatwalkState, List<BakedQuad>> m = new HashMap<>();
-            cache2.put(material, m);
         }
         //if(cache.containsKey(cw)){
         //    return cache.get(cw);
@@ -73,8 +82,12 @@ public class CatwalkModel implements IBakedModel{
                 if (cw.floorSections.get(it) == null) continue;
                 ModelSlicer.sliceInto(builder, floorQuads, cw.floorSections.get(it).boundingBoxes.get(it), offset, filter);
             }
-            cache2.get(material).put(cw, builder.build());
-            return cache2.get(material).get(cw);
+            if (!CatwalkConfigs.supportOptifine) {
+                materialCache.put(cw, builder.build());
+                return materialCache.get(cw);
+            } else {
+                return builder.build();
+            }
 
             /*cache.put(cw, builder.build());
             return cache.get(cw);*/

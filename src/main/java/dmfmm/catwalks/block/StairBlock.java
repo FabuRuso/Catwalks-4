@@ -1,7 +1,5 @@
 package dmfmm.catwalks.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
@@ -27,8 +25,6 @@ public class StairBlock extends GenericBlock {
     public static class State {
         public int up = 0, down = 0;
         public boolean left = false, right = false;
-
-        // facing is stored on blockstate visible
 
         @Override
         public int hashCode() {
@@ -91,17 +87,14 @@ public class StairBlock extends GenericBlock {
         if (state instanceof IExtendedBlockState) {
             IExtendedBlockState estate = (IExtendedBlockState) state;
             State statey = new State();
-            // todo: me
-            estate.withProperty(STATE, statey);
-            return estate;
+            return estate.withProperty(STATE, statey);
         }
         else {
             return state;
         }
     }
-
     @Override
-    public BlockStateContainer getBlockState() {
+    public BlockStateContainer createBlockState() {
         return new BlockStateContainer.Builder(this).add(FACING).add(STATE).build();
     }
 

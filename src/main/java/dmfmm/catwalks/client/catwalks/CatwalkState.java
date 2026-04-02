@@ -35,12 +35,12 @@ public class CatwalkState {
 
     @Override
     public boolean equals(Object o) {
-        if(this.hashCode() == o.hashCode()) return true;
+        if (this == o) return true;
         if(!(o instanceof CatwalkState)) return false;
-
-        if(railSections != ((CatwalkState) o).railSections) return false;
-        if(floorSections != ((CatwalkState) o).floorSections) return false;
-        if(layers != ((CatwalkState) o).layers) return false;
+        CatwalkState other = (CatwalkState) o;
+        if(!railSections.equals(other.railSections)) return false;
+        if(!floorSections.equals(other.floorSections)) return false;
+        if(!layers.equals(other.layers)) return false;
         return true;
     }
 

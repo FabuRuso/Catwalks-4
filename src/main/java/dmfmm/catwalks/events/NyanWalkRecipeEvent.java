@@ -34,15 +34,14 @@ public class NyanWalkRecipeEvent {
                 if(itemStacker.getItem().getItem() instanceof ItemBlockCatwalk){
                     NBTTagCompound tag = itemStacker.getItem().getTagCompound();
                     if(tag != null) {
-                        tag.setString("material", CatwalkMaterial.NYANWALK.getName().toLowerCase());
-                        ItemStack jones = new ItemStack(Item.getItemFromBlock(BlockRegistry.CATWALK), itemStacker.getItem().getCount());
-                        jones.setTagCompound(tag);
-                        EntityItem i = new EntityItem(itemStacker.getEntityWorld(), itemStacker.posX, itemStacker.posY + 8, itemStacker.posZ, jones);
-                        itemStacker.setDead();
-
-                        if(!world.isRemote)
+                        if (!world.isRemote) {
+                            tag.setString("material", CatwalkMaterial.NYANWALK.getName().toLowerCase());
+                            ItemStack jones = new ItemStack(Item.getItemFromBlock(BlockRegistry.CATWALK), itemStacker.getItem().getCount());
+                            jones.setTagCompound(tag);
+                            EntityItem i = new EntityItem(itemStacker.getEntityWorld(), itemStacker.posX, itemStacker.posY + 8, itemStacker.posZ, jones);
+                            itemStacker.setDead();
                             world.spawnEntity(i);
-                        else{
+                        } else {
                             world.spawnParticle(EnumParticleTypes.DRAGON_BREATH, itemStacker.posX, itemStacker.posY, itemStacker.posZ, 0, 1, 0);
 
                             Random random = world.rand;

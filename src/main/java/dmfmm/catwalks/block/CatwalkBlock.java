@@ -41,8 +41,6 @@ import java.util.*;
 
 public class CatwalkBlock extends GenericBlock implements ITileEntityProvider, ICustomItemBlock {
 
-    //public static UnlistedArbitraryProperty CATWALK_STATE = new UnlistedArbitraryProperty("state", CatwalkState.class);
-
     public static final IUnlistedProperty<CatwalkState> CATWALK_STATE  = new IUnlistedProperty<CatwalkState>() {
 
         @Override
@@ -104,7 +102,12 @@ public class CatwalkBlock extends GenericBlock implements ITileEntityProvider, I
     @SuppressWarnings("deprecation")
     public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end)
     {
-        CatwalkTile tile = worldIn.getTileEntity(pos) instanceof CatwalkTile ? (CatwalkTile) worldIn.getTileEntity(pos) : null;
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (!(te instanceof CatwalkTile)) {
+            return super.collisionRayTrace(blockState, worldIn, pos, start, end);
+        }
+        CatwalkTile tile = (CatwalkTile) te;
+
         Map<Pair<EnumFacing, AxisAlignedBB>, RayTraceResult> map = new HashMap<>();
         for (Map.Entry<EnumFacing, Pair<AxisAlignedBB, AxisAlignedBB>> it: boundingBoxes.entrySet()) {
             boolean has = tile.has(it.getKey());
@@ -147,6 +150,8 @@ public class CatwalkBlock extends GenericBlock implements ITileEntityProvider, I
                 if(other instanceof CatwalkTile) {
                     ((CatwalkTile) other).updateSide(facing.getOpposite(), false);
                     tile.updateSide(facing, false);
+                    IBlockState neighborState = world.getBlockState(pos.offset(facing));
+                    world.notifyBlockUpdate(pos.offset(facing), neighborState, neighborState, 3);
                 }
                 if(other instanceof IConnectTile) {
                     tile.updateSide(facing, false);
@@ -164,6 +169,9 @@ public class CatwalkBlock extends GenericBlock implements ITileEntityProvider, I
             TileEntity other = world.getTileEntity(pos.offset(facing));
             if(other instanceof CatwalkTile) {
                 ((CatwalkTile) other).updateSide(facing.getOpposite(), true);
+                // Notify neighbors so they re-render with the restored rail side
+                IBlockState neighborState = world.getBlockState(pos.offset(facing));
+                world.notifyBlockUpdate(pos.offset(facing), neighborState, neighborState, 3);
             }
         }
     }
@@ -269,16 +277,18 @@ public class CatwalkBlock extends GenericBlock implements ITileEntityProvider, I
         return false;
     }
 
-    private AxisAlignedBB bounds = FULL_BLOCK_AABB;
+    @SideOnly(Side.CLIENT)
+    private static final ThreadLocal<AxisAlignedBB> lastTracedBounds = ThreadLocal.withInitial(() -> FULL_BLOCK_AABB);
+
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return bounds.setMaxY(1);
+        return FULL_BLOCK_AABB;
     }
 
     @SideOnly(Side.CLIENT)
     private void updateBounds(AxisAlignedBB bb){
-        bounds = bb;
+        lastTracedBounds.set(bb);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package dmfmm.catwalks.utils;
 
-import javafx.util.Pair;
+import dmfmm.catwalks.utils.Pair;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 

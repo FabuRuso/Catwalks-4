@@ -63,7 +63,10 @@ public class LadderBlock extends GenericBlock implements ITileEntityProvider{
             if(f == EnumFacing.UP || f == EnumFacing.DOWN){
                 f = EnumFacing.NORTH;
                 if(world.getBlockState(pos.down()).getBlock() == this){
-                    f = ((LadderTile)world.getTileEntity(pos.down())).getFacing();
+                    TileEntity below = world.getTileEntity(pos.down());
+                    if (below instanceof LadderTile) {
+                        f = ((LadderTile) below).getFacing();
+                    }
                 }
             }
             ((LadderTile) te).setFacing(f);
@@ -92,7 +95,8 @@ public class LadderBlock extends GenericBlock implements ITileEntityProvider{
                 theState = theState.withProperty(STATE, LadderState.MIDDLE);
             } else if(matchup) {
                 theState = theState.withProperty(STATE, LadderState.BOTTOM);
-                TileEntity tes = world.getTileEntity(pos.offset(EnumFacing.NORTH.getOpposite()));
+                EnumFacing tileActualFacing = (te instanceof LadderTile) ? ((LadderTile) te).getFacing() : EnumFacing.NORTH;
+                TileEntity tes = world.getTileEntity(pos.offset(tileActualFacing));
                 if(tes instanceof IConnectTile && !(tes instanceof LadderTile)){
                     theState = theState.withProperty(CONNECTED, true);
                 } else {
@@ -136,8 +140,6 @@ public class LadderBlock extends GenericBlock implements ITileEntityProvider{
         IExtendedBlockState estate = (IExtendedBlockState) this.getExtendedState(state, world, pos);
         Double[][] hit = LadderBlockHitboxes.getBoxAdditions(estate.getValue(FACING));
         AxisAlignedBB bb = new AxisAlignedBB(pos.getX() + hit[1][0], pos.getY() + hit[1][1], pos.getZ() + hit[1][2], pos.getX() + hit[1][3], pos.getY() + hit[1][4], pos.getZ() + hit[1][5]);
-
-        //side panels
         if(
             estate.getValue(STATE) == LadderState.BOTTOM ||
             (estate.getValue(STATE) == LadderState.TOP && estate.getUnlistedNames().contains(HAS_CAGE) && estate.getValue(HAS_CAGE)) ||
@@ -151,7 +153,6 @@ public class LadderBlock extends GenericBlock implements ITileEntityProvider{
                 collidingBoxes.add(bb);
             }
         }
-        //ladderblock
         if(estate.getValue(STATE) == LadderState.BOTTOM || estate.getValue(STATE) == LadderState.MIDDLE || (estate.getValue(STATE) == LadderState.TOP && estate.getUnlistedNames().contains(STATE) && !estate.getValue(CONNECTED))){
             bb = new AxisAlignedBB(pos.getX() + hit[0][0], pos.getY() + hit[0][1], pos.getZ() + hit[0][2], pos.getX() + hit[0][3], pos.getY() + hit[0][4], pos.getZ() + hit[0][5]);
             if (bb.intersects(entityBox)) {
@@ -159,7 +160,6 @@ public class LadderBlock extends GenericBlock implements ITileEntityProvider{
             }
         }
 
-        //cage box
         if((estate.getValue(STATE) == LadderState.TOP && estate.getUnlistedNames().contains(HAS_CAGE) && estate.getValue(HAS_CAGE)) || (estate.getValue(STATE) == LadderState.MIDDLE && estate.getUnlistedNames().contains(HAS_CAGE) && estate.getValue(HAS_CAGE))){
             bb = new AxisAlignedBB(pos.getX() + hit[3][0], pos.getY() + hit[3][1], pos.getZ() + hit[3][2], pos.getX() + hit[3][3], pos.getY() + hit[3][4], pos.getZ() + hit[3][5]);
             if (bb.intersects(entityBox)) {
@@ -167,7 +167,6 @@ public class LadderBlock extends GenericBlock implements ITileEntityProvider{
             }
         }
 
-        //Base colision
         if(estate.getValue(STATE) == LadderState.BOTTOM){
             bb = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX()+ 1, pos.getY()+ 0.2, pos.getZ()+1);
             if (bb.intersects(entityBox)) {

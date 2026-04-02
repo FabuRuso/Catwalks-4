@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ServerChatAddition {
 
-    private List<String> coolPeople = Arrays.asList("wolfywing", "gearsgoddx", "AcidAngel");
+    private List<String> coolPeople = Arrays.asList("wolfywing", "gearsgoddx", "AcidAngel", "Fabuur", "zeLOVE4ek", "faburuso");
 
 
     @SubscribeEvent

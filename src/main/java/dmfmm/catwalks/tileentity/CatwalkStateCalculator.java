@@ -3,18 +3,27 @@ package dmfmm.catwalks.tileentity;
 
 import dmfmm.catwalks.client.catwalks.CatwalkModel;
 import dmfmm.catwalks.client.catwalks.CatwalkState;
+import dmfmm.catwalks.Catwalks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 
 
+@Mod.EventBusSubscriber(modid = Catwalks.MODID)
 public class CatwalkStateCalculator {
 
     static HashMap<World, HashMap<Long, CatwalkTile>> tileCache = new HashMap<>();
+    @SubscribeEvent
+    public static void onWorldUnload(WorldEvent.Unload event) {
+        tileCache.remove(event.getWorld());
+    }
 
     public static void removeFromCache(World world, BlockPos pos){
         if(tileCache.containsKey(world)) {
@@ -39,7 +48,12 @@ public class CatwalkStateCalculator {
         if(tileCache.containsKey(world)){
             HashMap<Long, CatwalkTile> hashMap = tileCache.get(world);
             if(hashMap.containsKey(l)){
-                return hashMap.get(l);
+                CatwalkTile cached = hashMap.get(l);
+                if (cached.isInvalid()) {
+                    hashMap.remove(l);
+                } else {
+                    return cached;
+                }
             }
             TileEntity tileEntity = world.getTileEntity(pos);
             if(tileEntity instanceof CatwalkTile) {
@@ -67,7 +81,9 @@ public class CatwalkStateCalculator {
     }
 
     public boolean has(EnumFacing side, BlockPos pos) {
-        return getCached(pos).has(side);
+        CatwalkTile tile = getCached(pos);
+        if (tile == null) return false;
+        return tile.has(side);
     }
 
     public CatwalkState calculate() {

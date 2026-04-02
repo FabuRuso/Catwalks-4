@@ -35,7 +35,6 @@ public class CatwalkTile extends TileEntity implements IConnectTile{
         return sides.get(side);
     }
 
-    //@SideOnly(Side.CLIENT)
     public CatwalkState getCatwalkState(){
         return new CatwalkStateCalculator(this.getWorld(), this.getPos()).calculate();
     }
@@ -63,7 +62,7 @@ public class CatwalkTile extends TileEntity implements IConnectTile{
     {
         super.readFromNBT(compound);
         String mat = compound.getString("material");
-        if(mat != "") {
+        if (!mat.isEmpty()) {
             this.material = CatwalkMaterial.valueOf(mat.toUpperCase());
         }
 
@@ -73,15 +72,6 @@ public class CatwalkTile extends TileEntity implements IConnectTile{
     }
 
 
-    /**
-     * Called when you receive a TileEntityData packet for the location this
-     * TileEntity is currently in. On the client, the NetworkManager will always
-     * be the remote server. On the server, it will be whomever is responsible for
-     * sending the packet.
-     *
-     * @param net The NetworkManager the packet originated from
-     * @param pkt The data packet
-     */
     public void onDataPacket(net.minecraft.network.NetworkManager net, net.minecraft.network.play.server.SPacketUpdateTileEntity pkt)
     {
         NBTTagCompound tag = pkt.getNbtCompound();
