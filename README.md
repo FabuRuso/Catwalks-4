@@ -12,4 +12,6 @@ And also I'd so like to thank them all for the good ground for `Nevermindland`
 It was not supposed as a truly continuation or extension of the original series <br/>
 Just enough large bugfix for one far too long abandoned mod
 
-### *Was prepared for [`Nevermindland`-server](https://discord.gg/jjTd5jdcM5)*
+|<img width="400" alt="Nevermindland got catwalks" src="https://github.com/user-attachments/assets/cb7b1748-6774-4d32-a336-eb04ed1d748d" />|
+| :---: |
+| *Was prepared for [`Nevermindland`-server](https://discord.gg/jjTd5jdcM5)* |
